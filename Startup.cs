@@ -1,4 +1,5 @@
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using site_cms.Models;
 
 namespace site_cms
@@ -14,6 +15,8 @@ namespace site_cms
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            JToken jAppSettings = JToken.Parse(File.ReadAllText(Path.Combine(Environment.CurrentDirectory, "appsettings.json")));
+            var host = jAppSettings["host"];
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -26,7 +29,7 @@ namespace site_cms
                 endpoints.MapGet("/", async context =>
                 {
                     HttpClient http = new HttpClient();
-                    var response = await http.GetAsync("http://localhost:5045/api/paginas/home.json");
+                    var response = await http.GetAsync($"{host}/api/paginas/home.json");
                     if(response.IsSuccessStatusCode)
                     {
                         var result = response.Content.ReadAsStringAsync().Result;
@@ -42,7 +45,7 @@ namespace site_cms
                 endpoints.MapGet("/{slug}", async context =>
                 {
                     HttpClient http = new HttpClient();
-                    var url = "http://localhost:5045/api/paginas" + context.Request.Path.Value + ".json";
+                    var url = $"{host}/api/paginas" + context.Request.Path.Value + ".json";
                     Console.WriteLine(url);
                     var response = await http.GetAsync(url);
                     if(response.IsSuccessStatusCode)
